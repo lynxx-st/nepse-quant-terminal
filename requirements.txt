@@ -1,27 +1,39 @@
-streamlit==1.51.0
-pandas==2.3.3
-numpy==2.3.5
-plotly==6.5.0
-scipy==1.16.3
-scikit-learn==1.7.2
-statsmodels==0.14.5
-arch==7.2.0
-requests==2.32.5
-beautifulsoup4==4.14.2
-tenacity==9.1.2
-feedparser==6.0.12
-tqdm==4.67.1
-numba==0.62.1
-pytest==9.0.1
-rich==14.3.1
-python-telegram-bot==22.6
-matplotlib==3.10.8
-playwright==1.54.0
-mcp==1.27.0
-mlx-lm==0.31.1
-mlx-vlm==0.4.4
-pytesseract==0.3.13
-Pillow==11.3.0
-PyMuPDF==1.26.6
-opencv-python-headless==4.10.0.84
+# Core data
+pandas>=2.0
+numpy>=1.24
+scipy>=1.10
+scikit-learn>=1.3
+statsmodels>=0.14
+arch>=6.0
+
+# TUI
+textual>=0.70
+rich>=13.0
+
+# Market data
+requests>=2.28
+beautifulsoup4>=4.12
+tenacity>=8.0
+feedparser>=6.0
+tqdm>=4.64
 nepse @ git+https://github.com/basic-bgnr/NepseUnofficialApi.git@2f09fbfdcbaf23545d5755b6f11b367324d5b8a4
+
+# Visualisation / reporting
+matplotlib>=3.7
+plotly>=5.0
+
+# Telegram bot (optional — needed for alerts)
+python-telegram-bot>=20.0
+
+# AI agent — local models (optional)
+# Uncomment if using Gemma 4 on Apple Silicon:
+# mlx-lm>=0.10
+# mlx-vlm>=0.1
+
+# Testing
+pytest>=7.0
+
+# Misc
+Pillow>=10.0
+numba>=0.57
+mcp>=1.0
