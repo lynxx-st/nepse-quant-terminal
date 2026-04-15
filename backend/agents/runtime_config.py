@@ -49,6 +49,17 @@ AGENT_BACKEND_PRESETS: dict[str, dict[str, Any]] = {
         "trust_remote_code": False,
         "description": "Claude CLI backend for built-in analysis and local chat.",
     },
+    "ollama": {
+        "backend": "ollama",
+        "label": "Ollama (local)",
+        "provider_label": "ollama",
+        "source_label": "local_ollama",
+        "model": "llama3",
+        "ollama_host": "http://localhost:11434",
+        "fallback_backend": "",
+        "trust_remote_code": False,
+        "description": "Any local model served by Ollama (llama3, mistral, phi3, qwen2, etc.). No GPU required for smaller models.",
+    },
 }
 
 

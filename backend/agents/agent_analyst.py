@@ -322,6 +322,32 @@ def _call_gemma4_mlx(prompt: str, system: str = SYSTEM_PROMPT, max_tokens: int =
         return f"ERROR: Gemma 4 MLX inference failed: {exc}"
 
 
+def _call_ollama(prompt: str, system: str = SYSTEM_PROMPT, max_tokens: int = DEFAULT_AGENT_MAX_TOKENS) -> str:
+    """Call a local Ollama model via its REST API (http://localhost:11434)."""
+    try:
+        import urllib.request, json as _json
+        cfg = load_active_agent_config()
+        model = str(cfg.get("model") or "llama3").strip()
+        host = str(cfg.get("ollama_host") or "http://localhost:11434").rstrip("/")
+        payload = _json.dumps({
+            "model": model,
+            "prompt": f"<system>\n{system}\n</system>\n\n{prompt}",
+            "stream": False,
+            "options": {"num_predict": max_tokens},
+        }).encode()
+        req = urllib.request.Request(
+            f"{host}/api/generate",
+            data=payload,
+            headers={"Content-Type": "application/json"},
+            method="POST",
+        )
+        with urllib.request.urlopen(req, timeout=180) as resp:
+            data = _json.loads(resp.read().decode())
+        return str(data.get("response") or "").strip() or "ERROR: Ollama returned empty response"
+    except Exception as exc:
+        return f"ERROR: Ollama call failed: {exc}"
+
+
 def _call_primary_agent(prompt: str, system: str = SYSTEM_PROMPT, max_tokens: int = DEFAULT_AGENT_MAX_TOKENS) -> str:
     backend = _agent_backend()
     if backend in {"gemma4_mlx", "gemma4", "mlx", "mlx_gemma4"}:
@@ -334,6 +360,8 @@ def _call_primary_agent(prompt: str, system: str = SYSTEM_PROMPT, max_tokens: in
             if not str(fallback_response).startswith("ERROR:"):
                 return fallback_response
         return response
+    if backend == "ollama":
+        return _call_ollama(prompt, system=system, max_tokens=max_tokens)
     return _call_claude(prompt, system=system, max_tokens=max_tokens)
 
 

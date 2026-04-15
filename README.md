@@ -14,7 +14,7 @@ A terminal-based quantitative trading dashboard for the Nepal Stock Exchange (NE
 - **Market Dashboard** — live quotes, 52-week highs/lows, top movers, sector heatmap, volume signals.
 - **Portfolio Analytics** — unrealized/realized P&L, sector concentration, holding age buckets, max drawdown, alpha vs. NEPSE benchmark.
 - **Gold Hedge Overlay** — tracks gold/silver regime (risk-on / neutral / risk-off) and adjusts capital deployment accordingly.
-- **AI Agent** — on-demand analysis of your portfolio positions and signal shortlist via Claude.
+- **AI Agent** — on-demand analysis of your portfolio positions and signal shortlist. Runs locally via Ollama (any model), Gemma 4 MLX (Apple Silicon), or Claude CLI.
 - **Strategy Builder** — create, backtest, and assign custom strategies. Each account runs its own strategy independently.
 - **Statistical Validation** — walk-forward OOS testing, Monte Carlo, CSCV/PBO overfitting detection, deflated Sharpe ratio, random baseline percentile.
 - **MeroShare Import** — seed any account directly from your MeroShare "My Shares Values.csv" export.
@@ -229,6 +229,105 @@ python -m apps.tui.dashboard_tui
 
 ---
 
+## AI Agent Setup
+
+The Agents tab provides on-demand equity analysis of your signal shortlist and portfolio. Three backends are supported — pick whichever suits your hardware.
+
+### Option 1 — Ollama (recommended, any hardware)
+
+Ollama runs any open-source model locally via a simple REST server. No Apple Silicon required.
+
+**Step 1 — Install Ollama**
+```bash
+# macOS
+brew install ollama
+
+# Linux
+curl -fsSL https://ollama.com/install.sh | sh
+```
+
+**Step 2 — Pull a model**
+
+Pick one based on your available RAM:
+
+| Model | RAM | Command | Notes |
+|---|---|---|---|
+| `llama3` | 8 GB | `ollama pull llama3` | Good all-rounder |
+| `mistral` | 8 GB | `ollama pull mistral` | Fast, sharp reasoning |
+| `phi3` | 4 GB | `ollama pull phi3` | Runs on low-end hardware |
+| `qwen2` | 8 GB | `ollama pull qwen2` | Strong on structured output |
+| `llama3:70b` | 40 GB | `ollama pull llama3:70b` | Best quality, high-end only |
+
+**Step 3 — Start the Ollama server**
+```bash
+ollama serve
+# Runs at http://localhost:11434 by default
+```
+
+**Step 4 — Point the terminal at your model**
+
+Edit `data/runtime/agents/active_agent.json` (created automatically on first run):
+```json
+{
+  "selected_preset": "ollama",
+  "backend": "ollama",
+  "model": "mistral",
+  "ollama_host": "http://localhost:11434"
+}
+```
+
+Or switch from inside the TUI: **Agents tab → Agent Settings → select Ollama → enter model name**.
+
+**Step 5 — Run the terminal**
+```bash
+python -m apps.tui.dashboard_tui
+```
+
+Open the Agents tab and hit **Analyze** — the agent will pull your current shortlist and return a structured bull/bear breakdown per stock.
+
+---
+
+### Option 2 — Gemma 4 MLX (Apple Silicon only)
+
+Runs Gemma 4 directly in-process via MLX. No server needed — faster response on M-series chips.
+
+```bash
+pip install mlx-vlm
+# Model (~3 GB) downloads automatically on first use
+```
+
+The default model is `mlx-community/gemma-4-e4b-it-4bit`. No config change needed — this is the default backend.
+
+---
+
+### Option 3 — Claude CLI
+
+Falls back to the `claude` CLI if Gemma or Ollama fails, or set it as primary.
+
+```bash
+# Install Claude Code CLI
+npm install -g @anthropic-ai/claude-code   # or via brew
+
+# Authenticate
+claude login
+```
+
+Then set `active_agent.json` backend to `"claude"`, or switch from the TUI.
+
+---
+
+### Switching backends at runtime
+
+All three backends are hot-swappable without restarting the terminal. In the TUI:
+
+```
+Agents tab → Agent Settings (gear icon) → select backend → Save
+```
+
+The setting persists to `data/runtime/agents/active_agent.json`.
+
+---
+
 ## Keyboard Shortcuts
 
 | Key | Action |
@@ -261,7 +360,7 @@ nepse-quant-terminal/
 │   ├── backtesting/
 │   │   └── simple_backtest.py      # Signal engine + backtest runner
 │   ├── market/                     # Market data, quotes, scraping
-│   ├── agents/                     # AI agent (Claude-powered)
+│   ├── agents/                     # AI agent (Ollama / Gemma MLX / Claude)
 │   └── quant_pro/
 │       ├── gold_hedge.py           # Gold regime overlay
 │       ├── satellite_data.py       # Hydropower signal data
