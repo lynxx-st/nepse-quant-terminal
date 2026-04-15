@@ -214,18 +214,28 @@ pip install -r requirements.txt
 
 ### Database
 
-Populate the price database with 2 years of NEPSE OHLCV data (fetched from Merolagani):
+Run the setup script — it downloads the pre-built database (~13 MB) from the GitHub release automatically:
 
 ```bash
-python setup_data.py           # full backfill — takes 30–60 min
-python setup_data.py --days 90 # quick test with 90 days (~5 min)
+python setup_data.py
 ```
 
-For daily incremental updates after the initial backfill:
+Takes under a minute. You get 456K rows of OHLCV history for all NEPSE symbols, quarterly earnings, corporate actions, and benchmark history — enough for the signal engine, backtests, and charts to work immediately.
 
+> **Important:** The bundled database is a snapshot. For accurate signals and backtests you must keep it up to date with fresh scraped data. The pre-built DB covers history through the release date — anything after that requires running the scraper.
+
+**Scrape fresh data yourself (recommended for production use):**
+```bash
+python setup_data.py --scrape           # full historical scrape from Merolagani (~30–60 min)
+python setup_data.py --scrape --days 90 # last 90 days only (~5 min)
+```
+
+**Daily incremental update** — run this after market close each day to keep data current:
 ```bash
 python scripts/ingestion/deterministic_daily_ingestion.py
 ```
+
+> The signal engine (volume breakout, momentum, quarterly fundamental, etc.) relies on recent price history. Stale data = stale signals. Set up a daily cron job or run the ingestion script manually each evening.
 
 ### Run
 
