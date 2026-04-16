@@ -81,7 +81,7 @@ class TUITradingEngine:
         max_positions: int = LONG_TERM_CONFIG["max_positions"],
         holding_days: int = LONG_TERM_CONFIG["holding_days"],
         sector_limit: float = LONG_TERM_CONFIG["sector_limit"],
-        refresh_secs: int = 300,
+        refresh_secs: int = 30,   # 30s polling — nepalstock cache refreshes every 15s
         hedge_enabled: bool = True,
         portfolio_file: Optional[Path] = None,
         trade_log_file: Optional[Path] = None,
