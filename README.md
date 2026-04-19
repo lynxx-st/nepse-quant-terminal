@@ -1,4 +1,4 @@
-# NEPSE Quant Terminal
+#NEPSE Quant Terminal
 
 A terminal-based quantitative trading dashboard for the Nepal Stock Exchange (NEPSE), built with [Textual](https://textual.textualize.io/). Runs entirely in your terminal — no browser, no electron, no cloud dependency.
 
